@@ -1,0 +1,88 @@
+package tests;
+
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterSuite;
+
+
+
+public class AmazonBuyProductTest {
+    WebDriver driver;
+
+    @BeforeSuite
+    public void openBrowser() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.get("https://www.amazon.in/");
+    }
+
+    @BeforeTest
+    public void login() {
+        // Click on profile icon
+        driver.findElement(By.id("nav-link-accountList")).click();
+        // Enter mobile or email
+        driver.findElement(By.id("ap_email_login")).sendKeys("7309502541");
+        // Click continue
+        driver.findElement(By.id("continue")).click();
+        // Enter password
+        driver.findElement(By.id("ap_password")).sendKeys("yash@7309");
+        // Click sign in
+        driver.findElement(By.id("signInSubmit")).click();
+    }
+
+    @Test
+    public void buyProductTest() throws InterruptedException {
+        // Search for a product
+        driver.findElement(By.id("twotabsearchtextbox")).sendKeys("bat");
+        driver.findElement(By.id("nav-search-submit-button")).click();
+
+        Thread.sleep(5000); // Static wait, can be replaced by explicit wait
+
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollBy(0,250)", "");
+
+        // Click on any product (Adjust locator if necessary)
+        driver.findElement(By.xpath("//*[@id=\"a-autoid-1-announce\"]")).click();
+
+        js.executeScript("window.scrollBy(0,-250)", "");
+
+        // Open cart
+        driver.findElement(By.id("nav-cart")).click();
+
+        // Proceed to buy
+        driver.findElement(By.xpath("//*[@id=\"sc-buy-box-ptc-button\"]/span")).click();
+    }
+
+    @AfterTest
+    public void logout() throws InterruptedException {
+        // Navigate back to the home or account page
+        driver.navigate().back();
+        Thread.sleep(2000); // Small wait after navigation
+
+        // Hover over profile icon to reveal logout
+        WebElement profileOption = driver.findElement(By.id("nav-link-accountList"));
+        Actions act = new Actions(driver);
+        act.moveToElement(profileOption).build().perform();
+
+        Thread.sleep(1000); // Allow the menu to appear
+
+        // Click logout
+        driver.findElement(By.id("nav-item-signout")).click();
+    }
+
+    @AfterSuite
+    public void closeBrowser() {
+        driver.quit();
+    }
+
+}
