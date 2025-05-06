@@ -1,0 +1,97 @@
+package tests;
+
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
+
+
+
+public class AmazonBuyProductTest {
+    WebDriver driver;
+
+    @BeforeSuite
+    public void openBrowser() {
+        driver = new ChromeDriver();
+    }
+
+    @BeforeTest 
+    public void navigateToAmazon() {
+    	 driver.manage().window().maximize();
+         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+         driver.get("https://www.amazon.in/");
+    }
+    
+    
+    @BeforeClass
+    public void login() {
+        // Click on profile icon
+        driver.findElement(By.xpath("//div[@id='nav-link-accountList']")).click();
+        // Enter mobile or email
+        driver.findElement(By.xpath("//input[@id='ap_email_login']")).sendKeys("7309502541");
+        // Click continue
+        driver.findElement(By.xpath("//span[@id='continue']//input")).click();
+        // Enter password
+        driver.findElement(By.xpath("//input[@id='ap_password']")).sendKeys("yash@7309");
+        // Click sign in
+        driver.findElement(By.xpath("//input[@id='signInSubmit']")).click();
+    }
+
+    @Test
+    public void buyProductTest() throws InterruptedException {
+        // Search for a product
+        driver.findElement(By.xpath("//input[@id='twotabsearchtextbox']")).sendKeys("headphones");
+        
+        driver.findElement(By.xpath("//input[@id='nav-search-submit-button']")).click();
+
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollBy(0,250)", "");
+
+        // Click on any product (Adjust locator if necessary)
+        driver.findElement(By.xpath("//div[@role='listitem'][1]//button[text()='Add to cart']")).click();
+
+        js.executeScript("window.scrollBy(0,-250)", "");
+
+        // Open cart
+        driver.findElement(By.xpath("//a[@id='nav-cart']")).click();
+
+        // Proceed to buy
+        driver.findElement(By.xpath("//input[@value = 'Proceed to checkout']")).click();
+    }
+    
+    @AfterClass
+    public void navigateToHomePage() {
+        // Navigate back to the home or account page
+        driver.navigate().back();)
+    }
+
+    
+    @AfterTest
+    public void logout() throws InterruptedException {
+
+        // Hover over profile icon to reveal logout
+        WebElement profileOption = driver.findElement(By.xpath("//div[@id='nav-link-accountList']"));
+        Actions act = new Actions(driver);
+        act.moveToElement(profileOption).build().perform();
+
+        // Click logout
+        driver.findElement(By.xpath("//a[@id='nav-item-signout']")).click();
+    }
+
+    
+    @AfterSuite
+    public void closeBrowser() {
+        driver.quit();
+    }
+
+}

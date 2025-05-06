@@ -11,6 +11,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterSuite;
 
 
@@ -21,12 +22,17 @@ public class AmazonBuyProductTest {
     @BeforeSuite
     public void openBrowser() {
         driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.get("https://www.amazon.in/");
     }
 
-    @BeforeTest
+    @BeforeTest 
+    public void navigateToAmazon() {
+    	 driver.manage().window().maximize();
+         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+         driver.get("https://www.amazon.in/");
+    }
+    
+    
+    @BeforeClass
     public void login() {
         // Click on profile icon
         driver.findElement(By.xpath("//div[@id='nav-link-accountList']")).click();
@@ -50,7 +56,7 @@ public class AmazonBuyProductTest {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("window.scrollBy(0,250)", "");
 
-        // Click on any product (Adjust locator if necessary)
+        // Click on any product 
         driver.findElement(By.xpath("//div[@role='listitem'][1]//button[text()='Add to cart']")).click();
 
         js.executeScript("window.scrollBy(0,-250)", "");
@@ -60,14 +66,16 @@ public class AmazonBuyProductTest {
 
         // Proceed to buy
         driver.findElement(By.xpath("//input[@value = 'Proceed to checkout']")).click();
+        
+        driver.navigate().back();
     }
+    
 
+    
     @AfterTest
     public void logout() throws InterruptedException {
-        // Navigate back to the home or account page
-        driver.navigate().back();
 
-        // Hover over profile icon to reveal logout
+        // Hover on profile to make logout option visible.
         WebElement profileOption = driver.findElement(By.xpath("//div[@id='nav-link-accountList']"));
         Actions act = new Actions(driver);
         act.moveToElement(profileOption).build().perform();
@@ -76,6 +84,7 @@ public class AmazonBuyProductTest {
         driver.findElement(By.xpath("//a[@id='nav-item-signout']")).click();
     }
 
+    
     @AfterSuite
     public void closeBrowser() {
         driver.quit();
